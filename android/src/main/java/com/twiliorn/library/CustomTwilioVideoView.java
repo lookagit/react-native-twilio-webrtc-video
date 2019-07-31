@@ -175,8 +175,6 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         audioManager = (AudioManager) themedReactContext.getSystemService(Context.AUDIO_SERVICE);
         myNoisyAudioStreamReceiver = new BecomingNoisyReceiver();
         intentFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-
-        createLocalMedia();
     }
 
     // ===== SETUP =================================================================================
@@ -224,6 +222,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             }
             setThumbnailMirror();
         }
+        connectToRoom();
     }
 
     // ===== LIFECYCLE EVENTS ======================================================================
@@ -324,8 +323,8 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             createLocalMedia();
         } else {
             localAudioTrack = LocalAudioTrack.create(getContext(), true);
+            connectToRoom();
         }
-        connectToRoom();
     }
 
     public void connectToRoom() {
