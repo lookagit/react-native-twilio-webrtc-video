@@ -48,7 +48,6 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
     private static final int GET_STATS = 6;
     private static final int DISABLE_OPENSL_ES = 7;
     private static final int TOGGLE_SOUND_SETUP = 8;
-    private static final int RELEASE_RESOURCE = 9;
 
     @Override
     public String getName() {
@@ -91,9 +90,6 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
             case TOGGLE_SOUND_SETUP:
                 Boolean speaker = args.getBoolean(0);
                 view.toggleSoundSetup(speaker);
-                break;
-            case RELEASE_RESOURCE:
-                view.releaseResource();
                 break;
         }
     }

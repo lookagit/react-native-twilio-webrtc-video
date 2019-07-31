@@ -311,13 +311,6 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         Log.e(TAG, "onAudioFocusChange: focuschange: " + focusChange);
     }
 
-    public void releaseResource() {
-        themedReactContext.removeLifecycleEventListener(this);
-        room = null;
-        localVideoTrack = null;
-        thumbnailVideoView = null;
-        cameraCapturer = null;
-    }
 
     // ====== CONNECTING ===========================================================================
 
