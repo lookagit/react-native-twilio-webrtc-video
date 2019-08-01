@@ -88,10 +88,16 @@ import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_VIDEO_CHANGED
 import static com.twiliorn.library.CustomTwilioVideoView.Events.MEDIA_LINK;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_BUTTON_PAUSE_PRESS;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_BUTTON_PLAY_PRESS;
+import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_MESSAGE_RECEIVED;
 
 public class CustomTwilioVideoView extends View implements LifecycleEventListener, AudioManager.OnAudioFocusChangeListener {
     private static final String TAG = "CustomTwilioVideoView";
-
+    private final Map<RemoteDataTrack, RemoteParticipant> dataTrackRemoteParticipantMap =            
+        new HashMap<>();
+    private Handler dataTrackMessageThreadHandler;
+    private static final String DATA_TRACK_MESSAGE_THREAD_NAME = "DataTrackMessages";
+    private final HandlerThread dataTrackMessageThread =
+        new HandlerThread(DATA_TRACK_MESSAGE_THREAD_NAME);
     public LocalDataTrack localDataTrack;
 
     @Retention(RetentionPolicy.SOURCE)
@@ -114,7 +120,8 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             Events.ON_STATS_RECEIVED,
             Events.ON_BUTTON_PAUSE_PRESS,
             Events.ON_BUTTON_PLAY_PRESS,
-            Events.MEDIA_LINK
+            Events.MEDIA_LINK,
+            Events.ON_MESSAGE_RECEIVED
         })
     public @interface Events {
         String ON_CAMERA_SWITCHED = "onCameraSwitched";
@@ -137,6 +144,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         String ON_BUTTON_PLAY_PRESS = "onButtonPlayPress";
         String ON_BUTTON_PAUSE_PRESS = "onButtonPausePress";
         String MEDIA_LINK = "onMediaLinkSend";
+        String ON_MESSAGE_RECEIVED = "onMessageReceived";
     }
 
     private final ThemedReactContext themedReactContext;
@@ -174,7 +182,8 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         super(context);
         this.themedReactContext = context;
         this.eventEmitter = themedReactContext.getJSModule(RCTEventEmitter.class);
-
+        dataTrackMessageThread.start();
+        dataTrackMessageThreadHandler = new Handler(dataTrackMessageThread.getLooper());
         // add lifecycle for onResume and on onPause
         themedReactContext.addLifecycleEventListener(this);
 
