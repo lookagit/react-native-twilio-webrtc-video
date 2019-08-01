@@ -124,12 +124,17 @@ const nativeEvents = {
   toggleSound: 5,
   getStats: 6,
   disableOpenSLES: 7,
-  toggleSoundSetup: 8
+  toggleSoundSetup: 8,
+  sendMessageToParent: 9
 }
 
 class CustomTwilioVideoView extends Component {
   connect ({roomName, accessToken}) {
     this.runCommand(nativeEvents.connectToRoom, [roomName, accessToken])
+  }
+
+  sendMessage(messageString) {
+    this.runCommand(nativeEvents.sendMessageToParent, [messageString]);
   }
 
   disconnect () {

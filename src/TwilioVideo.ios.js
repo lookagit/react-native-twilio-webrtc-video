@@ -121,6 +121,7 @@ export default class extends Component {
      *
      */
     onStatsReceived: PropTypes.func,
+    onMessageReceived: PropTypes.func,
     ...View.propTypes
   }
 
@@ -191,6 +192,11 @@ export default class extends Component {
    */
   getStats () {
     TWVideoModule.getStats()
+  }
+
+
+  sendMessage(message) {
+    return TWVideoModule.sendMessage(message);
   }
 
   /**
@@ -283,6 +289,9 @@ export default class extends Component {
       }),
       this._eventEmitter.addListener('statsReceived', (data) => {
         if (this.props.onStatsReceived) { this.props.onStatsReceived(data) }
+      }),
+      this._eventEmitter.addListener('messageReceive', (data) => {
+        if (this.props.onMessageReceived) { this.props.onMessageReceived(data)}
       })
     ]
   }

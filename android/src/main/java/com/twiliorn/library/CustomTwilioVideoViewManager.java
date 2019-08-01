@@ -48,6 +48,7 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
     private static final int GET_STATS = 6;
     private static final int DISABLE_OPENSL_ES = 7;
     private static final int TOGGLE_SOUND_SETUP = 8;
+    private static final int SEND_MESSAGE_TO_PARENT = 9;
 
     @Override
     public String getName() {
@@ -91,6 +92,9 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
                 Boolean speaker = args.getBoolean(0);
                 view.toggleSoundSetup(speaker);
                 break;
+            case SEND_MESSAGE_TO_PARENT:
+                String messageString = args.getString(0);
+                view.sendMessageToParent(messageString);
         }
     }
 
@@ -128,7 +132,7 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
     @Override
     @Nullable
     public Map<String, Integer> getCommandsMap() {
-        return MapBuilder.of(
+        Map map = MapBuilder.of(
                 "connectToRoom", CONNECT_TO_ROOM,
                 "disconnect", DISCONNECT,
                 "switchCamera", SWITCH_CAMERA,
@@ -137,5 +141,9 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
                 "getStats", GET_STATS,
                 "disableOpenSLES", DISABLE_OPENSL_ES
         );
+        map.putAll(MapBuilder.of(
+            "sendMessageToParent", SEND_MESSAGE_TO_PARENT
+        ));
+        return map;
     }
 }
