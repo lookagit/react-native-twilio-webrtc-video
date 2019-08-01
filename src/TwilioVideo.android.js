@@ -199,7 +199,8 @@ class CustomTwilioVideoView extends Component {
       'onParticipantDisabledVideoTrack',
       'onParticipantEnabledAudioTrack',
       'onParticipantDisabledAudioTrack',
-      'onStatsReceived'
+      'onStatsReceived',
+      'onMessageReceived'
     ].reduce((wrappedEvents, eventName) => {
       if (this.props[eventName]) {
         return {

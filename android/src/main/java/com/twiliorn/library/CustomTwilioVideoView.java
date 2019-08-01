@@ -498,6 +498,12 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         }
     }
 
+    public void messageReceived(String message) {
+        WritableMap event = new WritableNativeMap();
+        event.putString("remoteMessage", message);
+        pushEvent(CustomTwilioVideoView.this, ON_MESSAGE_RECEIVED, event);
+    }
+
 
     private void convertBaseTrackStats(BaseTrackStats bs, WritableMap result) {
         result.putString("codec", bs.codec);
@@ -709,6 +715,18 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
          * Start listening for participant media events
          */
         participant.setListener(mediaListener());
+
+        for (final RemoteDataTrackPublication remoteDataTrackPublication :
+                participant.getRemoteDataTracks()) {
+            /*
+             * Data track messages are received on the thread that calls setListener. Post the
+             * invocation of setting the listener onto our dedicated data track message thread.
+             */
+            if (remoteDataTrackPublication.isTrackSubscribed()) {
+                dataTrackMessageThreadHandler.post(() -> addRemoteDataTrack(participant,
+                        remoteDataTrackPublication.getRemoteDataTrack()));
+            }
+        }
     }
 
     /*
@@ -722,6 +740,32 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         pushEvent(this, ON_PARTICIPANT_DISCONNECTED, event);
         //something about this breaking.
         //participant.setListener(null);
+    }
+
+    private void addRemoteDataTrack(RemoteParticipant remoteParticipant,
+                                    RemoteDataTrack remoteDataTrack) {
+        dataTrackRemoteParticipantMap.put(remoteDataTrack, remoteParticipant);
+        remoteDataTrack.setListener(remoteDataTrackListener());
+    }
+
+
+    private RemoteDataTrack.Listener remoteDataTrackListener() {
+        return new RemoteDataTrack.Listener() {
+            @Override
+            public void onMessage(RemoteDataTrack remoteDataTrack, ByteBuffer byteBuffer) {
+            }
+
+            @Override
+            public void onMessage(RemoteDataTrack remoteDataTrack, String message) {
+                messageReceived(message);
+                if (message != null) {
+                    RemoteParticipant remoteParticipant = dataTrackRemoteParticipantMap
+                            .get(remoteDataTrack);
+                } else {
+                    Log.e(TAG, "Failed to deserialize message: " + message);
+                }
+            }
+        };
     }
 
 
@@ -758,7 +802,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
 
             @Override
             public void onDataTrackSubscribed(RemoteParticipant participant, RemoteDataTrackPublication publication, RemoteDataTrack dataTrack) {
-
+                dataTrack.setListener(remoteDataTrackListener());
             }
 
             @Override
